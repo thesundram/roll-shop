@@ -43,6 +43,7 @@ export interface GrindingLog {
   tonnageRolled: number;
   operatorName: string;
   remarks: string;
+  imageUrl?: string;
 }
 
 export interface Alert {
@@ -52,6 +53,114 @@ export interface Alert {
   rollId?: string;
   timestamp: string;
   read: boolean;
+}
+
+// ─── Bearing Inspection ───────────────────────────────────────────────────────
+
+export type BearingType = "Grease" | "Oil";
+
+export interface Bearing {
+  id: string;
+  bearingNo: string;
+  type: BearingType;
+  location: string;
+}
+
+export interface BearingInspection {
+  id: string;
+  date: string;
+  bearingType: BearingType;
+  bearingId: string;
+  // Grease-based checks
+  purgeCheck?: string;
+  greaseCondition?: string;
+  sealIntegrity?: string;
+  // Oil-based checks
+  oilLevel?: string;
+  oilCondition?: string;
+  constantLevelOiler?: string;
+  leakageCheck?: string;
+  totalTonnage: number;
+  totalHours: number;
+  remarks: string;
+  imageUrl?: string;
+  inspectorName: string;
+}
+
+export const bearings: Bearing[] = [
+  { id: "B01", bearingNo: "BRG-WR-101", type: "Grease", location: "Stand 1 – Work Side" },
+  { id: "B02", bearingNo: "BRG-WR-102", type: "Grease", location: "Stand 1 – Drive Side" },
+  { id: "B03", bearingNo: "BRG-IR-201", type: "Oil", location: "Stand 2 – Work Side" },
+  { id: "B04", bearingNo: "BRG-IR-202", type: "Oil", location: "Stand 2 – Drive Side" },
+  { id: "B05", bearingNo: "BRG-BR-301", type: "Oil", location: "Stand 3 – Work Side" },
+  { id: "B06", bearingNo: "BRG-BR-302", type: "Oil", location: "Stand 3 – Drive Side" },
+  { id: "B07", bearingNo: "BRG-WR-103", type: "Grease", location: "Stand 4 – Work Side" },
+  { id: "B08", bearingNo: "BRG-WR-104", type: "Grease", location: "Stand 4 – Drive Side" },
+];
+
+export const bearingInspections: BearingInspection[] = [
+  {
+    id: "BI001",
+    date: "2024-01-15",
+    bearingType: "Grease",
+    bearingId: "B01",
+    purgeCheck: "Normal",
+    greaseCondition: "Normal",
+    sealIntegrity: "Intact",
+    totalTonnage: 3800,
+    totalHours: 8,
+    remarks: "",
+    inspectorName: "A. Kumar",
+  },
+  {
+    id: "BI002",
+    date: "2024-01-15",
+    bearingType: "Oil",
+    bearingId: "B03",
+    oilLevel: "Correct",
+    oilCondition: "Clear",
+    constantLevelOiler: "OK",
+    leakageCheck: "No Leakage",
+    totalTonnage: 5200,
+    totalHours: 8,
+    remarks: "",
+    inspectorName: "B. Singh",
+  },
+  {
+    id: "BI003",
+    date: "2024-01-14",
+    bearingType: "Grease",
+    bearingId: "B07",
+    purgeCheck: "Excessive Purging",
+    greaseCondition: "Darkened",
+    sealIntegrity: "Torn",
+    totalTonnage: 4100,
+    totalHours: 8,
+    remarks: "Seal replacement scheduled",
+    inspectorName: "C. Patel",
+  },
+  {
+    id: "BI004",
+    date: "2024-01-14",
+    bearingType: "Oil",
+    bearingId: "B05",
+    oilLevel: "Low",
+    oilCondition: "Cloudy",
+    constantLevelOiler: "Vent Blocked",
+    leakageCheck: "Minor Leak",
+    totalTonnage: 42000,
+    totalHours: 24,
+    remarks: "Topped up oil, cleared vent hole",
+    inspectorName: "D. Sharma",
+  },
+];
+
+export function getBearingName(id: string) {
+  return bearings.find((b) => b.id === id)?.bearingNo ?? id;
+}
+
+export function getBearingById(id: string) {
+  return bearings.find((b) => b.id === id);
 }
 
 // ─── Master Data ──────────────────────────────────────────────────────────────

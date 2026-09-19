@@ -17,6 +17,7 @@ import {
   AlertTriangle,
   X,
   Menu,
+  Gauge,
 } from "lucide-react";
 import { useState } from "react";
 import { alerts } from "@/lib/data";
@@ -25,6 +26,7 @@ import ThemeToggle from "@/components/theme-toggle";
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/grinding-log", label: "Grinding Log", icon: ClipboardList },
+  { href: "/bearing-inspection", label: "Bearing Inspection", icon: Gauge },
   { href: "/production-report", label: "Production Report", icon: FileBarChart2 },
   { href: "/inventory", label: "Roll Inventory", icon: Package },
   { href: "/roll-history", label: "Roll History", icon: History },

@@ -3,11 +3,11 @@
 import AppShell from "@/components/app-shell";
 import PageHeader from "@/components/page-header";
 import { rolls, machines, shapes, grindingLogs, getMachineName, getRollName, getShapeName } from "@/lib/data";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { PlusCircle, CheckCircle2, AlertTriangle, Search, ChevronDown } from "lucide-react";
+import { PlusCircle, CheckCircle2, AlertTriangle, Search, ChevronDown, ImagePlus, X, Paperclip } from "lucide-react";
 
 type FormData = {
   date: string;
@@ -67,6 +67,21 @@ export default function GrindingLogPage() {
   const [logs, setLogs] = useState(grindingLogs);
   const [search, setSearch] = useState("");
   const [filterDate, setFilterDate] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setImagePreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const set = (key: keyof FormData, value: string) => {
     setForm((prev) => {
@@ -117,12 +132,14 @@ export default function GrindingLogPage() {
       tonnageRolled: parseInt(form.tonnageRolled),
       operatorName: form.operatorName,
       remarks: form.remarks,
+      imageUrl: imagePreview ?? undefined,
     };
     setLogs([newLog, ...logs]);
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);
       setForm(emptyForm);
+      removeImage();
     }, 2500);
   };
 
@@ -287,6 +304,38 @@ export default function GrindingLogPage() {
                   />
                 </Field>
 
+                <Field label="Photo / Image Upload">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageSelect}
+                    className="hidden"
+                    id="grinding-image-upload"
+                  />
+                  {imagePreview ? (
+                    <div className="relative w-full h-32 rounded-md border border-border overflow-hidden group">
+                      <img src={imagePreview} alt="Grinding entry photo preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute top-1.5 right-1.5 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        aria-label="Remove image"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ) : (
+                    <label
+                      htmlFor="grinding-image-upload"
+                      className="flex flex-col items-center justify-center gap-1.5 w-full h-24 rounded-md border border-dashed border-border bg-secondary/30 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors cursor-pointer"
+                    >
+                      <ImagePlus size={18} />
+                      <span className="text-xs">Click to upload photo</span>
+                    </label>
+                  )}
+                </Field>
+
                 <Button type="submit" className="w-full" size="sm">
                   Save Grinding Log
                 </Button>
@@ -322,7 +371,7 @@ export default function GrindingLogPage() {
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="border-b border-border">
-                      {["Date", "Machine", "Roll No", "Shape", "Init Ø", "Final Ø", "Loss", "Tonnage", "Operator"].map((h) => (
+                      {["Date", "Machine", "Roll No", "Shape", "Init Ø", "Final Ø", "Loss", "Tonnage", "Operator", "Photo"].map((h) => (
                         <th key={h} className="text-left text-muted-foreground font-medium py-2 px-2 whitespace-nowrap first:pl-0">
                           {h}
                         </th>
@@ -350,6 +399,17 @@ export default function GrindingLogPage() {
                         </td>
                         <td className="py-2 px-2 text-foreground">{log.tonnageRolled.toLocaleString()}</td>
                         <td className="py-2 px-2 text-muted-foreground">{log.operatorName || "—"}</td>
+                        <td className="py-2 px-2">
+                          {log.imageUrl ? (
+                            <img
+                              src={log.imageUrl || "/placeholder.svg"}
+                              alt="Grinding entry attachment"
+                              className="w-8 h-8 rounded object-cover border border-border"
+                            />
+                          ) : (
+                            <Paperclip size={14} className="text-muted-foreground/40" />
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
